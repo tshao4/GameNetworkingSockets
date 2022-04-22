@@ -310,6 +310,11 @@ macro(set_clientlib_target_properties GNS_TARGET)
 		#endif()
 	elseif(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 
+	elseif(CMAKE_SYSTEM_NAME MATCHES Android)
+		find_library(android-log-lib log)
+		target_link_libraries(${GNS_TARGET} PUBLIC
+			${android-log-lib}
+		)
 	elseif(CMAKE_SYSTEM_NAME MATCHES Windows)
 		if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 			get_target_property(TARGET_TYPE ${GNS_TARGET} TYPE)
