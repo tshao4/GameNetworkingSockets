@@ -78,9 +78,14 @@ else(WIN32)
 		-DWEBRTC_POSIX
 		-DWEBRTC_LINUX
 		)
+	if(CMAKE_SYSTEM_NAME MATCHES Android)
+		add_definitions(
+			-DWEBRTC_ANDROID
+			)
+	endif()
 endif(WIN32)
 
-add_library(webrtc-lite STATIC
+set(webrtc_SRC
 	${webrtc_SOURCE_DIR}/api/adaptation/resource.cc
 	${webrtc_SOURCE_DIR}/api/adaptation/resource.h
 	${webrtc_SOURCE_DIR}/api/array_view.h
@@ -669,6 +674,19 @@ add_library(webrtc-lite STATIC
 	${webrtc_SOURCE_DIR}/system_wrappers/source/metrics.cc
 	)
 
+if(CMAKE_SYSTEM_NAME MATCHES Android)
+	set(webrtc_SRC
+		${webrtc_SRC}
+		${webrtc_SOURCE_DIR}/sdk/android/native_api/stacktrace/stacktrace.cc
+		${webrtc_SOURCE_DIR}/rtc_base/ifaddrs_android.cc
+		${webrtc_SOURCE_DIR}/rtc_base/system/warn_current_thread_is_deadlocked.cc
+		)
+endif()
+
+add_library(webrtc-lite STATIC
+	${webrtc_SRC}
+	)
+
 if(WIN32)
 	target_sources(webrtc-lite PRIVATE
 		${webrtc_SOURCE_DIR}/rtc_base/win32.cc
@@ -692,9 +710,11 @@ else(WIN32)
 		${webrtc_SOURCE_DIR}/rtc_base/synchronization/rw_lock_posix.h
 		${webrtc_SOURCE_DIR}/rtc_base/ifaddrs_converter.cc
 		)
-	target_link_libraries(webrtc-lite
-		pthread
-		)
+	if(NOT (CMAKE_SYSTEM_NAME MATCHES Android))
+		target_link_libraries(webrtc-lite
+			pthread
+			)
+	endif()
 	target_compile_options(webrtc-lite PRIVATE -Wno-attributes)
 endif(WIN32)
 
