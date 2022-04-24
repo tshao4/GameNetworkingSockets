@@ -51,7 +51,7 @@ bool Plat_IsInDebugSession()
 	info.kp_proc.p_flag = 0;
 	sysctl(mib,4,&info,&size,NULL,0);
 	return ((info.kp_proc.p_flag & P_TRACED) == P_TRACED);
-#elif defined(LINUX)
+#elif defined(LINUX) || defined(ANDROID)
 	static FILE *fp;
 	if ( !fp )
 	{
